@@ -46,6 +46,9 @@
     "helmet": "^4.6.0",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
-    "serve-favicon": "^2.5.0"
+    "serve-favicon": "^2.5.0",
+    "swagger-jsdoc": "^6.1.0",
+    "swagger-ui-dist": "^3.52.3",
+    "swagger-ui-express": "^4.1.6"
   }
 }
