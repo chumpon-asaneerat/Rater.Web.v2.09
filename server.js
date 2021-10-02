@@ -1,0 +1,1 @@
+console.log('My Choice Rater Web v2.0.9')
