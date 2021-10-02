@@ -1,0 +1,29 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "My Choice Rater Web v2.09",
+      "description": "My Choice Rater Web Application API",
+      "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+      }
+    },
+    "schemes": ["http"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "paths": {
+        "/": {
+            "get": {
+                "x-swagger-router-controller": "home",
+                "operationId": "xx",
+                "tags": [
+                    "/API Group 1"
+                ],
+                "description": "",
+                "parameters": [],
+                "responses": {}
+            }
+        }
+    }
+  }
