@@ -1,0 +1,13 @@
+
+
+### CHECK URL END WITH SLASH (root or /)
+GET http://localhost:3000/
+
+### CHECK URL END WITH SLASH (/users/)
+GET http://localhost:3000/users/
+
+### CHECK URL END WITH NO SLASH (root)
+GET http://localhost:3000
+
+### CHECK URL END WITH NO SLASH (/users)
+GET http://localhost:3000/users

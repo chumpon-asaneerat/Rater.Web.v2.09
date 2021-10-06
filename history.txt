@@ -1,5 +1,10 @@
 ------------------------------------------------------------------------------------------------
 [commit]
+Update 2021-10-07 #2
+- Add sample expressjs server.
+- Add rest api test for url with or without ending route with slash.
+
+[commit]
 Update 2021-10-07 #1
 - Update history.txt
 
