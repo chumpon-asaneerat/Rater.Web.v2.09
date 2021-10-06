@@ -1,5 +1,12 @@
 ------------------------------------------------------------------------------------------------
 [commit]
+Update 2021-10-07 #3
+- Update example expressjs server 
+  - used new build in body parser.
+  - add note for implement basic auth.
+- Update sample.rest -> use of variables.
+
+[commit]
 Update 2021-10-07 #2
 - Add sample expressjs server.
 - Add rest api test for url with or without ending route with slash.
