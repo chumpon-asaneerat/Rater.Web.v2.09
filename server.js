@@ -4,6 +4,9 @@ const morgan = require('morgan')
 //const bodyparser = require('body-parser')
 const cookieparser = require('cookie-parser')
 
+const fetch = require('node-fetch')
+//const https = require('https')
+
 let app = express()
 let port = 3000
 
@@ -24,6 +27,59 @@ app.all('/', (req, res) => {
 
 app.get('/users', (req, res) => {
     res.send('Hello World! This is user url')
+})
+
+app.post('/execute', (req, res) => {
+    req.setTimeout(5 * 1000) // timeout in 5 second
+    let data = req.body
+    if (!data) 
+        data = { timeout: 1000 };
+    setTimeout(() => {
+        console.log("response to caller.")
+        let output = { 
+            message: 'Hello World!' 
+        }
+        res.send(output)
+    }, data.timeout);
+})
+
+app.post('/check', (req, res) => {
+    let request = async () => 
+    {
+        try 
+        {
+            let url = 'http://localhost:3000/execute';
+            let pObj = req.body
+            let sJson = JSON.stringify(pObj)
+            let agent = null
+            const response = await fetch(url, { 
+                method: 'POST',
+                body: sJson,
+                agent: agent,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'enabled': 'true',
+                    'Accept': 'application/json'
+                }
+            })
+            const data = await response.json()
+            console.info(data)
+
+            if (data)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+        catch (err) {
+            console.error(err)
+        }
+    } 
+
+    request() // call api
 })
   
 app.listen(port, () => {

@@ -41,3 +41,19 @@ content-type: {{content_type}}
 {
 
 }
+
+### TEST RESPONSE TIMEOUT
+POST {{base_url}}/execute
+content-type: {{content_type}}
+
+{
+    "timeout": 10000
+}
+
+### TEST CHECK TIMEOUT
+POST {{base_url}}/check
+content-type: {{content_type}}
+
+{
+    "timeout": 1000
+}
