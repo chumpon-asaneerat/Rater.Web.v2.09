@@ -37,13 +37,20 @@ app.all('/execute', (req, res) => {
     let data = req.method == "POST" ? req.body :  Object.fromEntries(new URLSearchParams(req.query))
     if (!data || !data.timeout) 
         data = { timeout: 1000 };
-    setTimeout(() => {
+
+    let timeout = setTimeout(() => {
         console.log("response to caller.")
-        let output = { 
-            message: 'Hello World!' 
-        }
+        let output = { message: 'Hello World!' }
         res.send(output)
     }, data.timeout);
+
+    req.on('close', () => {
+        console.log("client close.")
+        clientClosed = true
+        if (timeout) {
+            clearTimeout(timeout)
+        }
+    })
 })
 
 app.post('/check', (req, res) => {
@@ -138,9 +145,9 @@ app.post('/check2', (req, res) => {
 
         try 
         {
-            const response = await fetchTimeout(url, 10000, options)
+            const response = await fetchTimeout(url, 1000, options)
 
-            var ret = await response
+            var ret = response
             if (ret) {
                 const data = await ret.json()
                 console.info(data)
