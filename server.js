@@ -5,6 +5,8 @@ const morgan = require('morgan')
 const cookieparser = require('cookie-parser')
 
 const fetch = require('node-fetch')
+const AbortController = require('abort-controller')
+
 //const https = require('https')
 
 let app = express()
@@ -21,6 +23,7 @@ app.use(express.json());
 
 app.use(cookieparser());
 
+
 app.all('/', (req, res) => {
     res.send('Hello World!')
 })
@@ -29,9 +32,9 @@ app.get('/users', (req, res) => {
     res.send('Hello World! This is user url')
 })
 
-app.post('/execute', (req, res) => {
+app.all('/execute', (req, res) => {
     req.setTimeout(5 * 1000) // timeout in 5 second
-    let data = req.body
+    let data = req.method == "POST" ? req.body :  Object.fromEntries(new URLSearchParams(req.query))
     if (!data) 
         data = { timeout: 1000 };
     setTimeout(() => {
@@ -43,39 +46,73 @@ app.post('/execute', (req, res) => {
     }, data.timeout);
 })
 
+const fetchTimeout = (url, ms, { signal, ...options } = {}) => {
+    const controller = new AbortController();
+    const promise = fetch(url, { signal: controller.signal, ...options });
+    if (signal) signal.addEventListener("abort", () => controller.abort());
+    const timeout = setTimeout(() => controller.abort(), ms);
+    return promise.finally(() => clearTimeout(timeout));
+};
+
 app.post('/check', (req, res) => {
     let request = async () => 
     {
+        const controller = new AbortController();
+        const signal = controller.signal
+
+        signal.addEventListener("abort", () => {
+            console.log("aborted!")
+        })
+
+        const timeout = setTimeout(() => {
+            console.log('abort timeout 1 s.')
+            controller.abort()
+        }, 1000);
+
+        let url = 'http://localhost:3000/execute';
+        let pObj = req.body
+        let sJson = JSON.stringify(pObj)
+        let agent = null
+        let options = { 
+            method: 'POST',
+            body: sJson,
+            agent: agent,
+            headers: {
+                'Content-Type': 'application/json',
+                'enabled': 'true',
+                'Accept': 'application/json'
+            },
+            signal: signal
+        }
+
         try 
         {
-            let url = 'http://localhost:3000/execute';
-            let pObj = req.body
-            let sJson = JSON.stringify(pObj)
-            let agent = null
-            const response = await fetch(url, { 
-                method: 'POST',
-                body: sJson,
-                agent: agent,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'enabled': 'true',
-                    'Accept': 'application/json'
-                }
-            })
-            const data = await response.json()
-            console.info(data)
+            const response = await fetch(url, options)
 
-            if (data)
-            {
-
+            var ret = await response
+            if (ret) {
+                const data = ret.json()
+                console.info(data)
             }
-            else
-            {
-
+            else {
+                // no response
+                console.info('No response')
             }
         }
         catch (err) {
-            console.error(err)
+            if (err.name === 'AbortError') {
+                console.log('request was aborted');
+            }
+            else if (err.name === 'FetchError') {
+                console.log('fetch error');
+            }
+            else {
+                console.error(err)
+            }
+        }
+        finally {
+            console.info('clear timeout')
+            clearTimeout(timeout)
         }
     } 
 
