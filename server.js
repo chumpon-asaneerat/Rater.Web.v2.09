@@ -33,9 +33,9 @@ app.get('/users', (req, res) => {
 })
 
 app.all('/execute', (req, res) => {
-    req.setTimeout(5 * 1000) // timeout in 5 second
+    //req.setTimeout(5 * 1000) // timeout in 5 second
     let data = req.method == "POST" ? req.body :  Object.fromEntries(new URLSearchParams(req.query))
-    if (!data) 
+    if (!data || !data.timeout) 
         data = { timeout: 1000 };
     setTimeout(() => {
         console.log("response to caller.")
@@ -46,23 +46,11 @@ app.all('/execute', (req, res) => {
     }, data.timeout);
 })
 
-const fetchTimeout = (url, ms, { signal, ...options } = {}) => {
-    const controller = new AbortController();
-    const promise = fetch(url, { signal: controller.signal, ...options });
-    if (signal) signal.addEventListener("abort", () => controller.abort());
-    const timeout = setTimeout(() => controller.abort(), ms);
-    return promise.finally(() => clearTimeout(timeout));
-};
-
 app.post('/check', (req, res) => {
     let request = async () => 
     {
         const controller = new AbortController();
         const signal = controller.signal
-
-        signal.addEventListener("abort", () => {
-            console.log("aborted!")
-        })
 
         const timeout = setTimeout(() => {
             console.log('abort timeout 1 s.')
@@ -113,6 +101,68 @@ app.post('/check', (req, res) => {
         finally {
             console.info('clear timeout')
             clearTimeout(timeout)
+        }
+    } 
+
+    request() // call api
+})
+
+const fetchTimeout = (url, ms, { ...options } = {}) => {
+    const controller = new AbortController()
+    const signal = controller.signal
+    if (signal) 
+        signal.addEventListener("abort", () => controller.abort())
+    const timeout = setTimeout(() => controller.abort(), ms)
+
+    const promise = fetch(url, { signal: signal, ...options })
+    return promise.finally(() => clearTimeout(timeout))
+};
+
+app.post('/check2', (req, res) => {
+    let request = async () => 
+    {
+        let url = 'http://localhost:3000/execute';
+        let pObj = req.body
+        let sJson = JSON.stringify(pObj)
+        let agent = null
+        let options = { 
+            method: 'POST',
+            body: sJson,
+            agent: agent,
+            headers: {
+                'Content-Type': 'application/json',
+                'enabled': 'true',
+                'Accept': 'application/json'
+            }
+        }
+
+        try 
+        {
+            const response = await fetchTimeout(url, 10000, options)
+
+            var ret = await response
+            if (ret) {
+                const data = await ret.json()
+                console.info(data)
+            }
+            else {
+                // no response
+                console.info('No response')
+            }
+        }
+        catch (err) {
+            if (err.name === 'AbortError') {
+                console.log('request was aborted');
+            }
+            else if (err.name === 'FetchError') {
+                console.log('fetch error');
+            }
+            else {
+                console.error(err)
+            }
+        }
+        finally {
+
         }
     } 
 

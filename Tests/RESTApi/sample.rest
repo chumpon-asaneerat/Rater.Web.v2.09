@@ -57,3 +57,12 @@ content-type: {{content_type}}
 {
     "timeout": 1000
 }
+
+
+### TEST CHECK TIMEOUT2
+POST {{base_url}}/check2
+content-type: {{content_type}}
+
+{
+    "timeout": 1000
+}
