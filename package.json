@@ -16,6 +16,9 @@
     "url": "https://github.com/chumpon-asaneerat/Rater.Web.v2.09/issues"
   },
   "homepage": "https://github.com/chumpon-asaneerat/Rater.Web.v2.09#readme",
+  "volta": {
+    "node": "12.14.0"
+  },
   "devDependencies": {
     "@types/dot": "^1.1.4",
     "@types/gulp": "^4.0.9",
